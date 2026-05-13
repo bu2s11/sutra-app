@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0c0c18">
+<meta name="description" content="圣八吉祥颂 · 每日念诵计数">
+<title>圣八吉祥颂 · 念诵</title>
+<style>
+:root {
+  --gold: #c9a84c;
+  --gold-light: #e8d088;
+  --gold-dim: #8a7030;
+  --bg: #0c0c18;
+  --bg-card: #141428;
+  --bg-elevated: #1c1c38;
+  --text: #d8d0c0;
+  --text-dim: #706858;
+  --text-bright: #f0e8d8;
+  --red: #c45c4a;
+  --radius: 20px;
+  --radius-sm: 14px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========== 顶部区域 ========== */
+.hero {
+  position: relative;
+  padding: 60px 24px 32px;
+  text-align: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, #18183a 0%, var(--bg) 100%);
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+  top: -100px; left: 50%; transform: translateX(-50%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '☸';
+  position: absolute;
+  font-size: 240px;
+  opacity: 0.03;
+  color: var(--gold);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.hero-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 8px;
+  position: relative;
+  text-shadow: 0 2px 24px rgba(201,168,76,0.25);
+}
+.hero-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 10px;
+  letter-spacing: 3px;
+}
+.hero-date {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 14px;
+  opacity: 0.6;
+}
+
+/* ========== 主体 ========== */
+.main {
+  padding: 0 16px 120px;
+  margin-top: -16px;
+  position: relative;
+  z-index: 2;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========== 统计条 ========== */
+.stats-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  padding: 18px 12px;
+  text-align: center;
+  border: 1px solid rgba(201,168,76,0.06);
+  transition: transform 0.2s;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1.1;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  letter-spacing: 1px;
+}
+
+/* ========== 计数主卡 ========== */
+.counter-card {
+  background: linear-gradient(135deg, #1a1a40 0%, #141430 50%, #18183a 100%);
+  border-radius: var(--radius);
+  padding: 36px 24px 28px;
+  text-align: center;
+  margin-bottom: 16px;
+  border: 1px solid rgba(201,168,76,0.1);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(201,168,76,0.08);
+  position: relative;
+  overflow: hidden;
+}
+.counter-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+}
+.counter-label {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+.counter-number {
+  font-size: 80px;
+  font-weight: 200;
+  color: var(--gold);
+  line-height: 1;
+  letter-spacing: 6px;
+  text-shadow: 0 0 60px rgba(201,168,76,0.15);
+  transition: transform 0.15s ease;
+  user-select: none;
+}
+.counter-number.bump {
+  transform: scale(1.08);
+}
+
+/* 念诵按钮 */
+.chant-btn {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 28px auto 0;
+  padding: 16px 0;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
+  color: #0c0c18;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(201,168,76,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.chant-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 12px rgba(201,168,76,0.3);
+}
+.chant-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  background: rgba(255,255,255,0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s, opacity 0.4s;
+  opacity: 0;
+}
+.chant-btn.ripple::after {
+  width: 300px; height: 300px;
+  opacity: 0;
+}
+
+/* 小按钮行 */
+.counter-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 16px;
+}
+.btn-sm {
+  background: var(--bg-elevated);
+  color: var(--text-dim);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 10px;
+  padding: 8px 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+}
+.btn-sm:active { transform: scale(0.95); }
+.btn-sm.danger { color: var(--red); border-color: rgba(196,92,74,0.15); }
+
+/* ========== 经文卡 ========== */
+.sutra-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid rgba(201,168,76,0.06);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+.sutra-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.sutra-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-bright);
+}
+.sutra-card-toggle {
+  font-size: 12px;
+  color: var(--gold);
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(201,168,76,0.08);
+  border: none;
+  letter-spacing: 1px;
+  transition: background 0.2s;
+}
+.sutra-card-toggle:active { background: rgba(201,168,76,0.15); }
+
+.sutra-body {
+  padding: 16px 20px;
+  max-height: 600px;
+  overflow-y: auto;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+}
+.sutra-body.collapsed {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+.sutra-body::-webkit-scrollbar { width: 2px; }
+.sutra-body::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.2); border-radius: 2px; }
+
+.sutra-section {
+  margin-bottom: 24px;
+}
+.sutra-section:last-child { margin-bottom: 0; }
+.sutra-section-title {
+  font-size: 12px;
+  color: var(--gold);
+  margin-bottom: 10px;
+  letter-spacing: 3px;
+  font-weight: 600;
+  text-align: center;
+  position: relative;
+}
+.sutra-section-title::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  opacity: 0.6;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.sutra-line {
+  padding: 4px 0;
+  line-height: 1.8;
+  font-size: 16px;
+  color: var(--text);
+  letter-spacing: 1px;
+  text-align: center;
+}
+.sutra-line + .sutra-line {
+  border-top: 1px solid rgba(255,255,255,0.015);
+}
+
+.sutra-note {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: rgba(201,168,76,0.04);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid rgba(201,168,76,0.3);
+}
+.sutra-note-title {
+  font-size: 13px;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  text-align: center;
+}
+.sutra-note p {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+
+/* ========== 历史记录卡 ========== */
+.history-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid rgba(201,168,76,0.06);
+}
+.history-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-bright);
+}
+.history-list {
+  padding: 8px 20px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.history-list::-webkit-scrollbar { width: 2px; }
+.history-list::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.2); border-radius: 2px; }
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.015);
+}
+.history-item:last-child { border-bottom: none; }
+.history-date {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.history-count {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gold);
+}
+.history-count small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-dim);
+  margin-left: 2px;
+}
+.history-empty {
+  padding: 24px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ========== 粒子效果 ========== */
+.particle-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 999;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  font-size: 20px;
+  animation: particleRise 1.5s ease-out forwards;
+  opacity: 0;
+  pointer-events: none;
+}
+@keyframes particleRise {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-120px) scale(0.5); }
+}
+
+/* ========== 确认弹窗 ========== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid rgba(201,168,76,0.1);
+  animation: modalIn 0.25s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.modal-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-bright);
+  margin-bottom: 12px;
+}
+.modal-text {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.modal-btns {
+  display: flex;
+  gap: 10px;
+}
+.modal-btn {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.modal-btn:active { transform: scale(0.96); }
+.modal-btn.cancel {
+  background: var(--bg-elevated);
+  color: var(--text-dim);
+}
+.modal-btn.confirm {
+  background: rgba(196,92,74,0.15);
+  color: var(--red);
+}
+
+/* ========== Toast ========== */
+.toast {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-80px);
+  background: var(--bg-elevated);
+  color: var(--gold-light);
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-size: 13px;
+  z-index: 2000;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  border: 1px solid rgba(201,168,76,0.15);
+  letter-spacing: 1px;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ========== 动画 ========== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fadeUp 0.5s ease backwards;
+}
+.fade-up:nth-child(1) { animation-delay: 0.05s; }
+.fade-up:nth-child(2) { animation-delay: 0.1s; }
+.fade-up:nth-child(3) { animation-delay: 0.15s; }
+.fade-up:nth-child(4) { animation-delay: 0.2s; }
+.fade-up:nth-child(5) { animation-delay: 0.25s; }
+
+/* ========== 响应式 ========== */
+@media (min-width: 600px) {
+  .hero { padding: 80px 24px 40px; }
+  .hero-title { font-size: 36px; }
+  .counter-number { font-size: 96px; }
+}
+
+/* ========== 安全区域 ========== */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .main { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+}
+</style>
+</head>
+<body>
+
+<!-- 粒子容器 -->
+<div class="particle-container" id="particleContainer"></div>
+
+<!-- 顶部 -->
+<div class="hero">
+  <div class="hero-title">圣八吉祥颂</div>
+  <div class="hero-sub">༄ བཀྲ་ཤིས་བརྒྱད་པ། ༄</div>
+  <div class="hero-date" id="headerDate"></div>
+</div>
+
+<div class="main">
+
+  <!-- 统计 -->
+  <div class="stats-bar fade-up">
+    <div class="stat-card">
+      <div class="stat-value" id="todayCount">0</div>
+      <div class="stat-label">今日念诵</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="totalCount">0</div>
+      <div class="stat-label">累计念诵</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="streakDays">0</div>
+      <div class="stat-label">连续天数</div>
+    </div>
+  </div>
+
+  <!-- 计数主卡 -->
+  <div class="counter-card fade-up">
+    <div class="counter-label">今日念诵遍数</div>
+    <div class="counter-number" id="counter">0</div>
+    <button class="chant-btn" id="chantBtn">念 诵 一 遍</button>
+    <div class="counter-actions">
+      <button class="btn-sm" onclick="addMultiple()">+3 遍</button>
+      <button class="btn-sm" onclick="addMultiple10()">+10 遍</button>
+      <button class="btn-sm danger" onclick="showResetModal()">重置</button>
+    </div>
+  </div>
+
+  <!-- 经文内容 -->
+  <div class="sutra-card fade-up">
+    <div class="sutra-card-header">
+      <span class="sutra-card-title">📜 经文</span>
+      <button class="sutra-card-toggle" id="sutraToggle" onclick="toggleSutra()">收起</button>
+    </div>
+    <div class="sutra-body" id="sutraBody">
+      <!-- 由 JS 填充 -->
+    </div>
+  </div>
+
+  <!-- 念诵记录 -->
+  <div class="history-card fade-up">
+    <div class="history-header">📊 近期记录</div>
+    <div class="history-list" id="historyList">
+      <!-- 由 JS 填充 -->
+    </div>
+  </div>
+
+</div>
+
+<!-- 重置确认弹窗 -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal-box">
+    <div class="modal-title">重置今日计数</div>
+    <div class="modal-text">确定要将今日念诵计数归零吗？此操作不可撤销。</div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeResetModal()">取消</button>
+      <button class="modal-btn confirm" onclick="doReset()">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ 经文数据 ============
+const SUTRA = {
+  sections: [
+    {
+      title: '开篇',
+      lines: [
+        '嗡',
+        '现有清净自性任运成',
+        '如是十方吉祥刹土中',
+        '所住诸佛正法圣僧众',
+        '悉皆顶礼愿我等吉祥',
+      ]
+    },
+    {
+      title: '顶礼八如来',
+      lines: [
+        '灯王佛及贤勇义成佛',
+        '慈严德佛善名胜德佛',
+        '一切义持广大名称佛',
+        '如须弥山圣力名德佛',
+        '垂念一切有情名德佛',
+        '遂愿威力吉祥名称佛',
+        '仅闻名号增德增吉祥',
+        '八大善逝尊前敬顶礼',
+      ]
+    },
+    {
+      title: '八大菩萨',
+      lines: [
+        '文殊童子具德金刚手',
+        '圣观自在怙主慈氏尊',
+        '地藏菩萨及以除盖障',
+        '虚空藏与胜圣普贤尊',
+        '青莲金刚白莲那伽树',
+        '如意保住宝剑日月轮',
+        '持善标帜吉祥殊胜德',
+        '八大菩萨尊前敬顶礼',
+      ]
+    },
+    {
+      title: '八吉祥物',
+      lines: [
+        '殊胜宝伞吉祥黄金鱼',
+        '如意宝瓶悦意妙莲花',
+        '悦音海螺圆满吉祥结',
+        '不朽胜幢自在金轮宝',
+        '持八殊胜珍宝之标帜',
+        '供养十方三世佛生喜',
+        '嬉女等尊唯念曾吉祥',
+        '八大吉祥天女敬顶礼',
+      ]
+    },
+    {
+      title: '八护世神',
+      lines: [
+        '大梵大自在天遍入天',
+        '千目帝释与持国天王',
+        '增长天王龙王广目天',
+        '多闻天王各持天宝物',
+        '轮三叉戟短枪金刚杵',
+        '琵琶宝剑宝塔胜宝幢',
+        '三界增上善妙与吉祥',
+        '八大世间护法敬顶礼',
+      ]
+    },
+    {
+      title: '发愿回向',
+      lines: [
+        '我等如今所作诸事业',
+        '一切障难恼害悉消泯',
+        '顺缘增长所愿如意成',
+        '祈愿吉祥如意悉圆满',
+      ]
+    }
+  ],
+  merit: '起时念彼成诸事，卧时诵此见善梦，战时诵此胜诸方，行事诵此遂心愿。平时诵此福寿吉，善妙圆满如意成，净诸罪障成增上，决定胜义佛所言。',
+  origin: '火猴年五月初三良辰，文殊欢喜金刚（麦彭仁波切）觉海中所出之珍贵宝珠璎珞。愿吉祥！'
+};
+
+// ============ 存储 ============
+const STORE_KEY = 'sutra_v2';
+
+function getStore() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); }
+  catch { return {}; }
+}
+function setStore(data) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+
+function getToday() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function ensureToday(store) {
+  const today = getToday();
+  if (!store.days) store.days = {};
+  if (!store.days[today]) store.days[today] = { count: 0 };
+  return store;
+}
+
+// ============ 计数 ============
+function increment(n = 1) {
+  let store = ensureToday(getStore());
+  store.days[getToday()].count += n;
+  setStore(store);
+  updateDisplay(store);
+  animateCounter();
+  if (n === 1) spawnParticle();
+}
+
+function addMultiple() {
+  increment(3);
+  showToast('+3 遍');
+}
+
+function addMultiple10() {
+  increment(10);
+  showToast('+10 遍');
+}
+
+function showResetModal() {
+  document.getElementById('resetModal').classList.add('show');
+}
+function closeResetModal() {
+  document.getElementById('resetModal').classList.remove('show');
+}
+function doReset() {
+  closeResetModal();
+  let store = ensureToday(getStore());
+  store.days[getToday()].count = 0;
+  setStore(store);
+  updateDisplay(store);
+  showToast('计数已重置');
+}
+
+// ============ 显示更新 ============
+function updateDisplay(store) {
+  const today = getToday();
+  const todayCount = (store.days && store.days[today] && store.days[today].count) || 0;
+
+  let total = 0;
+  if (store.days) {
+    Object.values(store.days).forEach(d => { total += (d.count || 0); });
+  }
+
+  // 连续天数
+  let streak = 0;
+  if (store.days) {
+    const d = new Date();
+    while (true) {
+      const key = d.toISOString().split('T')[0];
+      if (store.days[key] && store.days[key].count > 0) {
+        streak++;
+        d.setDate(d.getDate() - 1);
+      } else break;
+    }
+  }
+
+  document.getElementById('counter').textContent = todayCount;
+  document.getElementById('todayCount').textContent = todayCount;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('streakDays').textContent = streak;
+
+  renderHistory(store);
+}
+
+function animateCounter() {
+  const el = document.getElementById('counter');
+  el.classList.add('bump');
+  setTimeout(() => el.classList.remove('bump'), 150);
+}
+
+// ============ 粒子效果 ============
+const PARTICLES = ['✨', '🙏', '🌸', '🍃', '💫', '☸️'];
+function spawnParticle() {
+  const container = document.getElementById('particleContainer');
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.textContent = PARTICLES[Math.floor(Math.random() * PARTICLES.length)];
+
+  // 在按钮附近随机位置
+  const btn = document.getElementById('chantBtn');
+  const rect = btn.getBoundingClientRect();
+  const x = rect.left + Math.random() * rect.width;
+  const y = rect.top - 10;
+
+  p.style.left = x + 'px';
+  p.style.top = y + 'px';
+  container.appendChild(p);
+
+  setTimeout(() => p.remove(), 1500);
+}
+
+// ============ 经文渲染 ============
+function renderSutra() {
+  const body = document.getElementById('sutraBody');
+  let html = '';
+
+  html += `<div class="sutra-note">
+    <div class="sutra-note-title">前言</div>
+    <p>做任何事之初，若诵一遍此颂，可顺利如意成办，因此应当切记。</p>
+  </div>`;
+
+  SUTRA.sections.forEach(section => {
+    html += `<div class="sutra-section">`;
+    html += `<div class="sutra-section-title">${section.title}</div>`;
+    section.lines.forEach(line => {
+      html += `<div class="sutra-line">${line}</div>`;
+    });
+    html += `</div>`;
+  });
+
+  html += `<div class="sutra-note">
+    <div class="sutra-note-title">功德利益</div>
+    <p>${SUTRA.merit}</p>
+  </div>`;
+
+  html += `<div class="sutra-note">
+    <div class="sutra-note-title">缘起</div>
+    <p>${SUTRA.origin}</p>
+  </div>`;
+
+  body.innerHTML = html;
+}
+
+function toggleSutra() {
+  const body = document.getElementById('sutraBody');
+  const btn = document.getElementById('sutraToggle');
+  const isCollapsed = body.classList.toggle('collapsed');
+  btn.textContent = isCollapsed ? '展开' : '收起';
+}
+
+// ============ 历史记录 ============
+function renderHistory(store) {
+  const list = document.getElementById('historyList');
+  if (!store.days || Object.keys(store.days).length === 0) {
+    list.innerHTML = '<div class="history-empty">暂无念诵记录</div>';
+    return;
+  }
+
+  // 按日期排序，最近7天
+  const dates = Object.keys(store.days).sort().reverse().slice(0, 7);
+  const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+
+  let html = '';
+  dates.forEach(date => {
+    const count = store.days[date].count || 0;
+    const d = new Date(date + 'T00:00:00');
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    const weekday = weekdays[d.getDay()];
+    const isToday = date === getToday();
+
+    html += `<div class="history-item">
+      <span class="history-date">${month}月${day}日 周${weekday}${isToday ? ' · 今天' : ''}</span>
+      <span class="history-count">${count}<small>遍</small></span>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+}
+
+// ============ 日期显示 ============
+function updateDate() {
+  const now = new Date();
+  const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+  document.getElementById('headerDate').textContent =
+    `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${weekdays[now.getDay()]}`;
+}
+
+// ============ Toast ============
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ============ 初始化 ============
+function init() {
+  updateDate();
+  renderSutra();
+
+  const store = ensureToday(getStore());
+  setStore(store);
+  updateDisplay(store);
+
+  // 念诵按钮
+  const chantBtn = document.getElementById('chantBtn');
+  chantBtn.addEventListener('click', () => {
+    increment(1);
+
+    // 按钮涟漪效果
+    chantBtn.classList.add('ripple');
+    setTimeout(() => chantBtn.classList.remove('ripple'), 400);
+  });
+
+  // 弹窗外部点击关闭
+  document.getElementById('resetModal').addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-overlay')) closeResetModal();
+  });
+
+  // 键盘快捷键：空格念诵
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !e.target.matches('input, textarea, button')) {
+      e.preventDefault();
+      increment(1);
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
